@@ -1,0 +1,47 @@
+name: CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: ["main", "master"]
+  push:
+    branches: ["main", "master"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.22
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run tests
+        run: go test -v -coverpkg=./... -coverprofile=coverage.out -covermode=count ./... && go tool cover -func coverage.out | grep total | awk '{print $3}' 
+
+  # build:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: golang:1.22
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     - name: Setup vendoring
+  #       run: go mod vendor
+
+  #     - name: Build the app
+  #       run: go build -mod=vendor -o ./cmd/lru/bin/lru ./cmd/lru
+
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     image: golangci/golangci-lint:v1.50.0
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     - name: Setup vendoring
+  #       run: go mod vendor
+
+  #     - name: Run linter
+  #       run: golangci-lint run -c .golangci.yml -v --modules-download-mode=vendor ./cmd/lru/...
