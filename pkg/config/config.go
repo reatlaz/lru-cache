@@ -2,10 +2,12 @@ package config
 
 import (
 	"flag"
+	"fmt"
+	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/caarlos0/env"
-	"github.com/sirupsen/logrus"
 )
 
 type config struct {
@@ -18,7 +20,7 @@ type config struct {
 func GetConfig() *config {
 	cfg := &config{}
 	if err := env.Parse(cfg); err != nil {
-		logrus.Fatalf("Failed to parse env vars: %v", err)
+		slog.Error(fmt.Sprintf("Failed to parse env vars: %v", err))
 	}
 
 	flag.StringVar(&cfg.ServerHostPort, "server-host-port", cfg.ServerHostPort, "Server host and port")
@@ -28,4 +30,20 @@ func GetConfig() *config {
 	flag.Parse()
 
 	return cfg
+}
+
+func GetSlogLevel(logLevel string) slog.Level {
+	switch strings.ToLower(logLevel) {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		slog.Warn(fmt.Sprintf("Unknown log level: %s. Using default level `warn`\n", logLevel))
+		return slog.LevelWarn
+	}
 }

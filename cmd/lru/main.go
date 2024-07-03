@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log/slog"
 	"lrucache/pkg/cache"
 	"lrucache/pkg/config"
 	"lrucache/pkg/handlers"
@@ -14,31 +16,40 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/sirupsen/logrus"
 )
+
+func accessLogMiddleware(handlerName string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			next.ServeHTTP(w, r)
+			slog.Debug(
+				"Request",
+				"method", r.Method,
+				"path", r.URL.Path,
+				"handler", handlerName,
+				"duration", time.Since(start),
+			)
+		})
+	}
+}
 
 func main() {
 	cfg := config.GetConfig()
-	if level, err := logrus.ParseLevel(cfg.LogLevel); err != nil {
-		logrus.Fatalf("Invalid log level: %v", err)
-	} else {
-		logrus.SetLevel(level)
-	}
+	slog.SetLogLoggerLevel(config.GetSlogLevel(cfg.LogLevel))
 
 	handlers.CacheInstance = cache.NewLRUCache(cfg.CacheSize, cfg.DefaultCacheTTL)
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	r.Post("/api/lru", handlers.PostCacheHandler)
-	r.Get("/api/lru/{key}", handlers.GetCacheHandler)
-	r.Get("/api/lru", handlers.GetAllCacheHandler)
-	r.Delete("/api/lru/{key}", handlers.DeleteCacheHandler)
-	r.Delete("/api/lru", handlers.DeleteAllCacheHandler)
+	r.With(accessLogMiddleware("PostCacheHandler")).Post("/api/lru", handlers.PostCacheHandler)
+	r.With(accessLogMiddleware("GetCacheHandler")).Get("/api/lru/{key}", handlers.GetCacheHandler)
+	r.With(accessLogMiddleware("GetAllCacheHandler")).Get("/api/lru", handlers.GetAllCacheHandler)
+	r.With(accessLogMiddleware("DeleteCacheHandler")).Delete("/api/lru/{key}", handlers.DeleteCacheHandler)
+	r.With(accessLogMiddleware("DeleteAllCacheHandler")).Delete("/api/lru", handlers.DeleteAllCacheHandler)
 
-	logrus.Infof("Starting server on %s", cfg.ServerHostPort)
-	// http.ListenAndServe(cfg.ServerHostPort, r)
+	slog.Info(fmt.Sprintf("Starting server on %s", cfg.ServerHostPort))
 
 	server := &http.Server{
 		Addr:    cfg.ServerHostPort,
@@ -47,22 +58,22 @@ func main() {
 
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			logrus.Fatalf("HTTP server error: %v", err)
+			slog.Error(fmt.Sprintf("HTTP server error: %v", err))
 		}
-		logrus.Info("Stopped serving new connections.")
+		slog.Info("Stopped serving new connections.")
 	}()
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	logrus.Infof("Received signal: %s", <-sigChan)
+	slog.Info(fmt.Sprintf("Received signal: %s", <-sigChan))
 	start := time.Now()
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(shutdownCtx); err != nil {
-		logrus.Fatalf("Server shutdown error: %v", err)
+		slog.Error(fmt.Sprintf("Server shutdown error: %v", err))
 	}
 	elapsed := time.Since(start)
-	logrus.Infof("Graceful shutdown completed in %v", elapsed)
+	slog.Info(fmt.Sprintf("Graceful shutdown completed in %v", elapsed))
 }
