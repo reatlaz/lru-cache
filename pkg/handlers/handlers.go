@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"encoding/json"
 	"lrucache/pkg/cache"
 	"net/http"
@@ -32,7 +31,7 @@ func PostCacheHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ttl := time.Duration(req.TTL) * time.Second
-	if err := CacheInstance.Put(context.Background(), req.Key, req.Value, ttl); err != nil {
+	if err := CacheInstance.Put(r.Context(), req.Key, req.Value, ttl); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -43,7 +42,7 @@ func PostCacheHandler(w http.ResponseWriter, r *http.Request) {
 func GetCacheHandler(w http.ResponseWriter, r *http.Request) {
 	key := chi.URLParam(r, "key")
 
-	value, expiresAt, err := CacheInstance.Get(context.Background(), key)
+	value, expiresAt, err := CacheInstance.Get(r.Context(), key)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -58,7 +57,7 @@ func GetCacheHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetAllCacheHandler(w http.ResponseWriter, r *http.Request) {
-	keys, values, err := CacheInstance.GetAll(context.Background())
+	keys, values, err := CacheInstance.GetAll(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -79,7 +78,7 @@ func GetAllCacheHandler(w http.ResponseWriter, r *http.Request) {
 func DeleteCacheHandler(w http.ResponseWriter, r *http.Request) {
 	key := chi.URLParam(r, "key")
 
-	_, err := CacheInstance.Evict(context.Background(), key)
+	_, err := CacheInstance.Evict(r.Context(), key)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -89,7 +88,7 @@ func DeleteCacheHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteAllCacheHandler(w http.ResponseWriter, r *http.Request) {
-	if err := CacheInstance.EvictAll(context.Background()); err != nil {
+	if err := CacheInstance.EvictAll(r.Context()); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
