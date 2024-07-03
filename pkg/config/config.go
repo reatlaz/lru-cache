@@ -1,3 +1,4 @@
+// Package config provides useful functions for the LRU cache service configuration.
 package config
 
 import (
@@ -17,6 +18,8 @@ type config struct {
 	LogLevel        string        `env:"LOG_LEVEL" envDefault:"warn"`
 }
 
+// GetConfig returns the LRU Cache service configurations.
+// Config values are taken from CLI flags with fallbacks to enviroment variables or default values.
 func GetConfig() *config {
 	cfg := &config{}
 	if err := env.Parse(cfg); err != nil {
@@ -32,6 +35,7 @@ func GetConfig() *config {
 	return cfg
 }
 
+// GetSlogLevel converts the log level name to the integer-based log level used by the log/slog package.
 func GetSlogLevel(logLevel string) slog.Level {
 	switch strings.ToLower(logLevel) {
 	case "debug":

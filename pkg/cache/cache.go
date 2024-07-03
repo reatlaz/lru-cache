@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// ILRUCache provides methods for adding, retrieving, and deleting cache entries.
 type ILRUCache interface {
 	Put(ctx context.Context, key string, value interface{}, ttl time.Duration) error
 	Get(ctx context.Context, key string) (value interface{}, expiresAt time.Time, err error)
