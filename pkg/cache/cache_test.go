@@ -9,11 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCache_implementsInterface(t *testing.T) {
+func TestCacheImplementsInterface(t *testing.T) {
 	var _ ILRUCache = new(LRUCache)
 }
 
-func TestCache_empty(t *testing.T) {
+func TestCacheEmpty(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(0, time.Minute)
 
@@ -22,7 +22,7 @@ func TestCache_empty(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestCache_Put(t *testing.T) {
+func TestCachePut(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(1, time.Minute)
 
@@ -35,7 +35,7 @@ func TestCache_Put(t *testing.T) {
 	require.Equal(t, 2, v.(int))
 }
 
-func TestCache_PutUpdate(t *testing.T) {
+func TestCachePutUpdate(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(1, time.Minute)
 
@@ -50,7 +50,7 @@ func TestCache_PutUpdate(t *testing.T) {
 	require.Equal(t, 3, v.(int))
 }
 
-func TestCache_expired(t *testing.T) {
+func TestCacheExpired(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(1, time.Minute)
 
@@ -60,7 +60,7 @@ func TestCache_expired(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestCache_Get(t *testing.T) {
+func TestCacheGet(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(5, time.Minute)
 
@@ -70,7 +70,6 @@ func TestCache_Get(t *testing.T) {
 
 	c.Get(ctx, "0")
 	c.Get(ctx, "1")
-
 	c.Put(ctx, "5", interface{}(5), time.Minute)
 	c.Put(ctx, "6", interface{}(6), time.Minute)
 
@@ -80,7 +79,7 @@ func TestCache_Get(t *testing.T) {
 	require.Equal(t, []interface{}{6, 5, 1, 0, 4}, values)
 }
 
-func TestCache_Evict(t *testing.T) {
+func TestCacheEvict(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(1, time.Minute)
 
@@ -100,7 +99,7 @@ func TestCache_Evict(t *testing.T) {
 	require.Error(t, err)
 }
 
-func TestCache_EvictAll(t *testing.T) {
+func TestCacheEvictAll(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(5, time.Minute)
 
@@ -115,7 +114,6 @@ func TestCache_EvictAll(t *testing.T) {
 	}
 
 	keys, values, err := c.GetAll(ctx)
-
 	require.Nil(t, err)
 	require.Equal(t, []string{"0", "1", "2", "3", "4"}, keys)
 	require.Equal(t, []interface{}{0, 1, 2, 3, 4}, values)
@@ -127,7 +125,7 @@ func TestCache_EvictAll(t *testing.T) {
 	// require.Equal(t, []int{0, 1, 2, 3, 4}, intValues)
 }
 
-func TestCache_EvictAll_logic(t *testing.T) {
+func TestCacheEvictAllLogic(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(5, time.Minute)
 
@@ -156,7 +154,7 @@ func TestCache_EvictAll_logic(t *testing.T) {
 	require.Equal(t, []interface{}{0, 1, 2, 3}, values)
 }
 
-func TestCache_GetAll(t *testing.T) {
+func TestCacheGetAll(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(5, time.Minute)
 
@@ -171,7 +169,7 @@ func TestCache_GetAll(t *testing.T) {
 	require.Equal(t, []interface{}{9, 8, 7, 6, 5}, values)
 }
 
-func TestCache_GetAllExpiration(t *testing.T) {
+func TestCacheGetAllExpiration(t *testing.T) {
 	ctx := context.Background()
 	c := NewLRUCache(5, time.Minute)
 
