@@ -117,12 +117,6 @@ func TestCacheEvictAll(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, []string{"0", "1", "2", "3", "4"}, keys)
 	require.Equal(t, []interface{}{0, 1, 2, 3, 4}, values)
-
-	// intValues := make([]int, 0, 5)
-	// for _, value := range values {
-	// 	intValues = append(intValues, value.(int))
-	// }
-	// require.Equal(t, []int{0, 1, 2, 3, 4}, intValues)
 }
 
 func TestCacheEvictAllLogic(t *testing.T) {

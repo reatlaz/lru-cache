@@ -20,7 +20,7 @@ type CacheItem struct {
 type LRUCache struct {
 	capacity  int
 	ttl       time.Duration
-	mutex     sync.RWMutex
+	mutex     sync.Mutex
 	items     map[string]*list.Element
 	orderList *list.List
 }
@@ -92,8 +92,8 @@ func (c *LRUCache) Get(ctx context.Context, key string) (interface{}, time.Time,
 
 // GetAll retrieves all entries in the cache.
 func (c *LRUCache) GetAll(ctx context.Context) ([]string, []interface{}, error) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
 	keys := make([]string, 0, len(c.items))
 	values := make([]interface{}, 0, len(c.items))
