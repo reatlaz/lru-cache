@@ -58,7 +58,6 @@ func (c *LRUCache) Put(ctx context.Context, key string, value interface{}, ttl t
 			}
 			c.orderList.Remove(oldest)
 			delete(c.items, oldest.Value.(*CacheItem).Key)
-
 		}
 		item := &CacheItem{
 			Key:       key,

@@ -35,7 +35,6 @@ linters:
     - unparam
     - cyclop
     - decorder
-    - depguard
     - dogsled
     - dupl
     - dupword

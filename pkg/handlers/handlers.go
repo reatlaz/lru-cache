@@ -61,7 +61,12 @@ func GetCacheHandler(w http.ResponseWriter, r *http.Request) {
 		Value:     value,
 		ExpiresAt: expiresAt.Unix(),
 	}
-	json.NewEncoder(w).Encode(response)
+
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetAllCacheHandler retrieves all cache entries.
@@ -82,7 +87,12 @@ func GetAllCacheHandler(w http.ResponseWriter, r *http.Request) {
 		"keys":   keys,
 		"values": values,
 	}
-	json.NewEncoder(w).Encode(response)
+
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // DeleteCacheHandler removes a cache entry by key.

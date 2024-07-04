@@ -19,7 +19,7 @@ type config struct {
 }
 
 // GetConfig returns the LRU Cache service configurations.
-// Config values are taken from CLI flags with fallbacks to enviroment variables or default values.
+// Config values are taken from CLI flags with fallbacks to environment variables or default values.
 func GetConfig() *config {
 	cfg := &config{}
 	if err := env.Parse(cfg); err != nil {

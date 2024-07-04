@@ -116,7 +116,6 @@ func TestGetHandler(t *testing.T) {
 }
 
 func TestGetAllHandler(t *testing.T) {
-
 	testCases := []struct {
 		id       string
 		keys     []string
