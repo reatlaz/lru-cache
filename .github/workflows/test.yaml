@@ -7,6 +7,17 @@ on:
     branches: ["main", "master"]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.22
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build the app
+        run: make build
+
   test:
     runs-on: ubuntu-latest
     container:
@@ -18,24 +29,20 @@ jobs:
       - name: Run tests
         run: make test
 
-  # build:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: golang:1.22
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
+  lint:
+    runs-on: ubuntu-latest
+    # container:
+    #   image: golangci/golangci-lint:v1.59.1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-  #     - name: Build the app
-  #       run: make build
+      # - name: Run linters
+      #   run: make lint
 
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: golangci/golangci-lint:v1.50.0
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v5
+        with:
+          version: v1.59.1
+          args: -c .golangci.yml -v ./...
 
-  #     - name: Run linters
-  #       run: make lint

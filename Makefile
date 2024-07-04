@@ -1,7 +1,7 @@
 .PHONY: build
 build:
 	go mod vendor
-	go build -mod=vendor -o bin/lru ./cmd/lru
+	go build -buildvcs=false -mod=vendor -o bin/lru ./cmd/lru
 
 .PHONY: test
 test:
