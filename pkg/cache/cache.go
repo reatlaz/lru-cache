@@ -30,7 +30,7 @@ func NewLRUCache(capacity int, ttl time.Duration) *LRUCache {
 	return &LRUCache{
 		capacity:  capacity,
 		ttl:       ttl,
-		items:     make(map[string]*list.Element),
+		items:     make(map[string]*list.Element, capacity),
 		orderList: list.New(),
 	}
 }
