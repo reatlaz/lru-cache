@@ -59,6 +59,7 @@ func main() {
 	go func() {
 		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			slog.Error(fmt.Sprintf("HTTP server error: %v", err))
+			os.Exit(1)
 		}
 		slog.Info("Stopped serving new connections.")
 	}()
