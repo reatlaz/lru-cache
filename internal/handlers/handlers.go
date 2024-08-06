@@ -11,7 +11,7 @@ import (
 )
 
 // CacheInstance is the instance of the LRU cache implementation in use.
-var CacheInstance *cache.LRUCache
+var CacheInstance cache.ILRUCache
 
 // CacheRequest represents the request payload for cache operations.
 type CacheRequest struct {

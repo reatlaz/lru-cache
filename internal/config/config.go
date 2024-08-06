@@ -11,7 +11,7 @@ import (
 	"github.com/caarlos0/env"
 )
 
-type config struct {
+type Config struct {
 	ServerHostPort  string        `env:"SERVER_HOST_PORT" envDefault:"localhost:8080"`
 	CacheSize       int           `env:"CACHE_SIZE" envDefault:"10"`
 	DefaultCacheTTL time.Duration `env:"DEFAULT_CACHE_TTL" envDefault:"1m"`
@@ -20,8 +20,8 @@ type config struct {
 
 // GetConfig returns the LRU Cache service configurations.
 // Config values are taken from CLI flags with fallbacks to environment variables or default values.
-func GetConfig() *config {
-	cfg := &config{}
+func GetConfig() *Config {
+	cfg := &Config{}
 	if err := env.Parse(cfg); err != nil {
 		slog.Error(fmt.Sprintf("Failed to parse env vars: %v", err))
 	}
