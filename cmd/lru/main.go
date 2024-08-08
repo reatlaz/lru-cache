@@ -8,6 +8,7 @@ import (
 	"lrucache/internal/config"
 	"lrucache/internal/handlers"
 	"lrucache/pkg/cache"
+	"lrucache/pkg/middlewares"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,22 +19,6 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
-func accessLogMiddleware(handlerName string) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			start := time.Now()
-			next.ServeHTTP(w, r)
-			slog.Debug(
-				"Request",
-				"method", r.Method,
-				"path", r.URL.Path,
-				"handler", handlerName,
-				"duration", time.Since(start),
-			)
-		})
-	}
-}
-
 func main() {
 	cfg := config.GetConfig()
 	slog.SetLogLoggerLevel(config.GetSlogLevel(cfg.LogLevel))
@@ -42,12 +27,7 @@ func main() {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
-
-	r.With(accessLogMiddleware("PostCacheHandler")).Post("/api/lru", handlers.PostCacheHandler)
-	r.With(accessLogMiddleware("GetCacheHandler")).Get("/api/lru/{key}", handlers.GetCacheHandler)
-	r.With(accessLogMiddleware("GetAllCacheHandler")).Get("/api/lru", handlers.GetAllCacheHandler)
-	r.With(accessLogMiddleware("DeleteCacheHandler")).Delete("/api/lru/{key}", handlers.DeleteCacheHandler)
-	r.With(accessLogMiddleware("DeleteAllCacheHandler")).Delete("/api/lru", handlers.DeleteAllCacheHandler)
+	r.Use(middlewares.AccessLogMiddleware)
 
 	slog.Info(fmt.Sprintf("Starting server on %s", cfg.ServerHostPort))
 
