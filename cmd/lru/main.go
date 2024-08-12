@@ -29,6 +29,12 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middlewares.AccessLogMiddleware)
 
+	r.Post("/api/lru", handlers.PostCacheHandler)
+	r.Get("/api/lru/{key}", handlers.GetCacheHandler)
+	r.Get("/api/lru", handlers.GetAllCacheHandler)
+	r.Delete("/api/lru/{key}", handlers.DeleteCacheHandler)
+	r.Delete("/api/lru", handlers.DeleteAllCacheHandler)
+
 	slog.Info(fmt.Sprintf("Starting server on %s", cfg.ServerHostPort))
 
 	server := &http.Server{
